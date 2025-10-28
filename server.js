@@ -1,31 +1,38 @@
 import express from "express";
-import bodyParser from "body-parser";
 import cors from "cors";
+import bodyParser from "body-parser";
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// ✅ Route principale pour tester
 app.get("/", (req, res) => {
-  res.send("✅ Serveur Integra+ opérationnel ");
+  res.send("Integra+ API is running ✅");
 });
 
+// ✅ Route /analyser : celle que Landbot appelle
 app.post("/analyser", (req, res) => {
   const userInput = req.body.user_input || "";
-  let feedback;
 
-  if (userInput.toLowerCase().includes("bonjour")) {
-    feedback = "Excellent ! Tu as bien utilisé 'Bonjour' 👏";
-  } else if (userInput.trim() === "") {
-    feedback = "Essaie d'écrire quelque chose 😉";
+  let feedback = "";
+  let audioUrl = "https://integra-plus-demo.s3.eu-central-1.amazonaws.com/bonjour.mp3";
+
+  if (userInput.toLowerCase().includes("je m’appelle") || userInput.toLowerCase().includes("je m'appelle")) {
+    feedback = "Excellent ! Tu t’es bien présenté 👏";
+  } else if (userInput.trim().length > 0) {
+    feedback = "Presque ! Essaie de dire : 'Je m’appelle ...'";
   } else {
-    feedback = `Très bien ! "${userInput}" est une phrase correcte ! 👏`;
+    feedback = "Peux-tu répéter ton prénom ? 😊";
   }
 
-  const audio_url = "https://integra-plus-demo.s3.eu-central-1.amazonaws.com/bonjour.mp3";
-
-  res.json({ feedback, audio_url });
+  // Réponse JSON attendue par Landbot
+  res.json({
+    feedback,
+    audio_url: audioUrl
+  });
 });
 
+// ✅ Lancer le serveur
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Serveur Integra+ en ligne sur le port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
